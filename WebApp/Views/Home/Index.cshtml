@@ -1,0 +1,177 @@
+﻿@model WebApp.Models.ViewModels.IndexViewModel
+@using System.IO;
+@using WebApp.Extentions;
+@{
+    ViewData["Title"] = "Home Page";
+
+    bool isAdmin = User.Identity.IsAuthenticated;
+}
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+
+
+            $(".openText").click(function () {
+
+                var id = $(this).data("id");
+
+                $(".fullText[data-id=" + id + "]").show();
+                $(".shortText[data-id=" + id + "]").hide();
+                //popup-wrap-bg
+            });
+
+            $(".closeText").click(function () {
+
+                var id = $(this).data("id");
+
+                $(".fullText[data-id=" + id + "]").hide();
+                $(".shortText[data-id=" + id + "]").show();
+                //popup-wrap-bg
+            });
+        })
+    </script>
+
+}
+
+<div class="row news">
+
+        <h1>Новости</h1>
+
+        @foreach (var page_item in Model.pages)
+        {
+            @if (page_item.IsTop)
+            {
+            <div class="col-md-4">
+                <div class="new @(page_item.IsTop ? "isTop" : "") " id="@string.Format("new{0}", page_item.Id)">
+
+                    @{
+                        string path = System.IO.Path.Combine(Model.webRoot, "Images\\QR");
+                        if (File.Exists(System.IO.Path.Combine(path, page_item.Id + ".png")))
+                        {
+                            string src = String.Format("/Images/QR/{0}", page_item.Id + ".png");
+
+                            <img class="qr" src="@src" />
+
+                        }
+                    }
+
+                    <h2><a href="/home/page/@page_item.Id">@page_item.Header</a></h2>
+                    <p class="category">Категория: @Model.pageCategories.First(p => p.Id == page_item.PagCategoryId).Name</p>
+                    <span class="created">@page_item.Created.ToShortDateString()</span>
+                    @if (!String.IsNullOrEmpty(page_item.Image))
+                    {
+                        path = System.IO.Path.Combine(Model.webRoot, "Images\\PageImages");
+                        if (File.Exists(System.IO.Path.Combine(path, page_item.Image)))
+                        {
+                            string src = String.Format("/Images/PageImages/{0}", page_item.Image);
+                            <a href="@src" target="_blank">
+                                <img class="pageImage" src="@src" />
+                            </a>
+                        }
+                    }
+
+                    @{
+                        string text = stringUtils.truncate(sanitizer.ConvertHtml(page_item.Html ?? ""), 400, "");
+                        // ищем пробел
+                        int pos = text.LastIndexOf(' ');
+                        if (pos > 0)
+                        {
+                            text = text.Substring(0, pos);
+                        }
+                    }
+                    <div class="shortText" data-id="@page_item.Id">
+                        @text
+                        <a class="openText" data-id="@page_item.Id">развернуть</a>
+                    </div>
+
+                    <div class="fullText" data-id="@page_item.Id" style="display: none;">
+                        @Html.Raw(page_item.Html)
+                        <a class="closeText" data-id="@page_item.Id">свернуть</a>
+                    </div>
+
+                    @if (isAdmin)
+                    {
+                        <a href="/Home/EditPage/@page_item.Id" class="editPage">
+                            <img src="~/images/edit.png" />
+                        </a>
+                    }
+                </div>
+            </div>
+                            }
+                        }
+
+    @*//-------------------------*@
+    @foreach (var page_item in Model.pages)
+    {
+        @if (!page_item.IsTop)
+        {
+            <div class="col-md-4">
+                <div class="new @(page_item.IsTop ? "isTop" : "") " id="@string.Format("new{0}", page_item.Id)">
+
+                    @{
+                        string path = System.IO.Path.Combine(Model.webRoot, "Images\\QR");
+                        if (File.Exists(System.IO.Path.Combine(path, page_item.Id + ".png")))
+                        {
+                            string src = String.Format("/Images/QR/{0}", page_item.Id + ".png");
+
+                            <img class="qr" src="@src" />
+
+                        }
+                    }
+
+                    <h2><a href="/home/page/@page_item.Id">@page_item.Header</a></h2>
+                    <p class="category">Категория: @Model.pageCategories.First(p => p.Id == page_item.PagCategoryId).Name</p>
+                    <span class="created">@page_item.Created.ToShortDateString()</span>
+                    @if (!String.IsNullOrEmpty(page_item.Image))
+                    {
+                        path = System.IO.Path.Combine(Model.webRoot, "Images\\PageImages");
+                        if (File.Exists(System.IO.Path.Combine(path, page_item.Image)))
+                        {
+                            string src = String.Format("/Images/PageImages/{0}", page_item.Image);
+                            <a href="@src" target="_blank">
+                                <img class="pageImage" src="@src" />
+                            </a>
+                        }
+                    }
+
+                    @{
+                        string text = stringUtils.truncate(sanitizer.ConvertHtml(page_item.Html ?? ""), 400, "");
+                        // ищем пробел
+                        int pos = text.LastIndexOf(' ');
+                        if (pos > 0)
+                        {
+                            text = text.Substring(0, pos);
+                        }
+                    }
+                    <div class="shortText" data-id="@page_item.Id">
+                        @text
+                        <a class="openText" data-id="@page_item.Id">развернуть</a>
+                    </div>
+
+                    <div class="fullText" data-id="@page_item.Id" style="display: none;">
+                        @Html.Raw(page_item.Html)
+                        <a class="closeText" data-id="@page_item.Id">свернуть</a>
+                    </div>
+
+                    @if (isAdmin)
+                    {
+                        <a href="/Home/EditPage/@page_item.Id" class="editPage">
+                            <img src="~/images/edit.png" />
+                        </a>
+                    }
+                </div>
+            </div>
+                        }
+                        }
+
+    @*<div class="col-md-6 indexCatsWrapper">*@
+        <h4><a class="btn btn-primary" href="/">Категории</a></h4>
+        <ul class="indexCats">
+            @foreach (var pc_item in Model.pageCategories)
+            {
+                <li><a class="btn btn-default" href="/home/index/@pc_item.Id">@pc_item.Name</a></li>
+
+            }
+        </ul>
+    @*</div>*@
+</div>

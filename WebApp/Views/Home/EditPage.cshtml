@@ -1,0 +1,83 @@
+﻿@model WebApp.Models.ViewModels.EditPageViewModel
+@using System.IO;
+@using WebApp.DataServices;
+@{
+    ViewData["Title"] = "Редактирование страницы";
+}
+
+@section scripts
+{
+
+    <script src="~/lib/ckeditor-standard-source/ckeditor.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+
+
+            // http://amitraya.blogspot.ru/2014/09/ck-editor-implement-your-own-image.html
+            CKEDITOR.config.height = 400;
+            CKEDITOR.config.width = 600;
+
+            CKEDITOR.replace('html', {
+                //    filebrowserImageBrowseUrl: '/Media/uploadPartial',
+                //    filebrowserImageUploadUrl: '/Media/uploadnow'
+            });
+        })
+    </script>
+
+}
+<div>
+    <span class="result">@ViewData["result"]</span>
+    <h2>@ViewData["Title"].</h2>
+    <form method="post" asp-action="EditPage" asp-controller="Home" enctype="multipart/form-data">
+        @Html.Hidden("ID", Model.page.Id)
+        <div class="clearpadding">
+            <div class="col-md-8">
+                <div class="editlabel">Заголовок</div>
+                <div class="editfield">@Html.TextBox("header", Model.page.Header)</div>
+
+                <div class="editlabel">Текст</div>
+                <div class="editfield">
+                    <textarea name="html" id="html">@Model.page.Html</textarea>
+                </div>
+
+                @{
+                    List<SelectListItem> cats = new List<SelectListItem>();
+                    List<PageCategories> pageCategories = new PageServices().GetPageCategories();
+                    foreach (var item in pageCategories)
+                    {
+                        cats.Add(new SelectListItem { Text = item.Name, Value = item.Id.ToString() });
+                    }
+                }
+
+                @Html.DropDownList("category_ID", new SelectList(cats, "Value", "Text", Model.page.PagCategoryId), new { id = "category_ID" })
+
+                <div class="topWrapper">
+                    <label><input type="radio" value="true" name="isTop" @(Model.page.IsTop ? "checked=checked" : "") />Топ-новость</label>
+                    &nbsp;
+                    <label><input type="radio" value="false" name="isTop" @(!Model.page.IsTop ? "checked=checked" : "") />Обычная</label>
+                </div>
+                <button type="submit" name="add" value="add">Добавить</button>
+                <button type="submit" name="save" value="save">Сохранить</button>
+                <button type="submit" name="delete" value="delete">Удалить</button>
+            </div>
+            <div class="col-md-4">
+                <input id="pageImage" name="files" type="file" />
+                @{ string src = "";
+                    if (!String.IsNullOrEmpty(Model.page.Image))
+                    {
+                        string path = System.IO.Path.Combine(Model.webRoot, "Images\\PageImages");
+                        if (File.Exists(System.IO.Path.Combine(path, Model.page.Image)))
+                        {
+                            src = String.Format("/Images/PageImages/{0}", Model.page.Image);
+                <a href="@src" target="_blank"><img class="pageImage" src="@src" /></a>
+                        }
+                    }
+                }
+
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="clear"></div>

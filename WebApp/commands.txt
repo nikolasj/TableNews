@@ -1,0 +1,10 @@
+﻿http://dotnetthoughts.net/entity-framework-core-scaffold-dbcontext-from-existing-database/
+
+Scaffold-DbContext "Server=.\\sqlexpress;Database=nick_news;Integrated Security=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+
+dotnet ef dbcontext scaffold "Server=.\\sqlexpress;Database=nick_news;Integrated Security=True" -o Models Microsoft.EntityFrameworkCore.SqlServer -c "ApplicationDbContext" -f -a
+
+dotnet publish --output "d:\temp\Core"
+
+Test1@test.test
+Test1@test.test
